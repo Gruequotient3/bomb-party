@@ -1,26 +1,33 @@
-PROG = main
+PROGCLIENT = client
+PROGSERVER = server
 
 CC = g++
 CXXFLAGS = -Wall -Wextra -O3
 
 DEBUG= -fsanitize=address
 
-SOURCES = $(wildcard src/*.cpp) $(wildcard src/**/*.cpp)
+SOURCES = $(wildcard src/network/*.cpp)
+SOURCESSERVER = $(wildcard src/server/*.cpp)
+SOURCESCLIENT = $(wildcard src/client/*.cpp)
 
-OBJ = $(SOURCES:.cpp=.o)
+OBJSERVER = $(SOURCESSERVER:.cpp=.o) $(SOURCES:.cpp=.o)
+OBJCLIENT = $(SOURCESCLIENT:.cpp=.o) $(SORUCES:.cpp=.o)
 
 RM = rm -rf
 
-all: $(PROG)
+all: serv clt
 
-debug: $(OBJ)
-	$(CC) $(DEBUG) $(OBJ) $(LDFLAGS) -o $(PROG)
+serv: $(PROGSERVER)
+clt: $(PROGCLIENT)
 
-$(PROG): $(OBJ)
-	$(CC) $(OBJ) $(LDFLAGS) -o $(PROG)
+$(PROGSERVER): $(OBJSERVER)
+	$(CC) $(OBJSERVER) $(LDFLAGS) -o $(PROGSERVER)
+
+$(PROGCLIENT): $(OBJCLIENT)
+	$(CC) $(OBJCLIENT) $(LDFLAGS) -o $(PROGCLIENT)
 
 %.o: %.cpp
 	$(CC) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	$(RM) $(OBJ) $(PROG)
+	$(RM) $(OBJSERVER) $(OBJCLIENT) $(PROGSERVER) $(PROGCLIENT)
