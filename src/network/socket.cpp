@@ -71,7 +71,7 @@ TCPSocketServer::~TCPSocketServer(){
     }
 }
 
-int TCPSocketServer::Accept(struct sockaddr* from, unsigned int* len){
+int TCPSocketServer::Accept(struct sockaddr* from, unsigned int* len) const{
     int clt;
     if ((clt = accept(fdSocket, from, len)) < 0){
         perror("accept");
@@ -80,7 +80,7 @@ int TCPSocketServer::Accept(struct sockaddr* from, unsigned int* len){
     return clt;
 }
 
-int TCPSocketServer::GetData(char* buffer, unsigned int len, int fd){
+int TCPSocketServer::GetData(char* buffer, unsigned int len, int fd) const{
     int length;
     
     memset(buffer, 0, len);
@@ -91,7 +91,7 @@ int TCPSocketServer::GetData(char* buffer, unsigned int len, int fd){
     return length;
 }
 
-int TCPSocketServer::SendData(const char* data, unsigned int len, int fd){
+int TCPSocketServer::SendData(const char* data, unsigned int len, int fd) const{
     int length;
 
     if ((length = send(fd, data, len, 0)) < 0){
@@ -99,6 +99,11 @@ int TCPSocketServer::SendData(const char* data, unsigned int len, int fd){
         return -1;
     } 
     return length;
+}
+
+void TCPSocketServer::SendError(const std::string& errorCode, int fd) const{
+    std::string data = "Error " + errorCode + "\n";
+    SendData(data.c_str(), (unsigned int)data.size(), fd);
 }
 
 /*

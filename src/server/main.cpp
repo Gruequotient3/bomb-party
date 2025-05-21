@@ -1,5 +1,9 @@
+#include "server.hpp"
 
 int main(){
 
-    return 0;
+    Server server{"12345"};
+    server.Run();
+
+    return 2;
 }
