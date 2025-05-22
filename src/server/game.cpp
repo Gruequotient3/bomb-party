@@ -16,6 +16,14 @@
 
 #define INIT_ALIVE_TIMER 3
 
+std::string ToUpperCase(const std::string& str){
+    std::string res = "";
+    for (int i = 0; i < (int)str.size(); ++i){
+        res += toupper(str[i]);
+    }
+    return res;
+}
+
 Game::Game() {
     leader = nullptr; 
     current = players.end();
@@ -74,7 +82,7 @@ void Game::ClientsInputHandler(const TCPSocketServer& server){
             }
 
             // Handle command for not named connexion 
-            if (parse[0] == "NAMEP") {
+            if (ToUpperCase(parse[0]) == "NAMEP") {
                 if (NamepCommandHandler(parse, itWaiters, server)){
                     auto it = itWaiters--;
                     waiters.erase(it);
@@ -116,10 +124,10 @@ void Game::ClientsInputHandler(const TCPSocketServer& server){
                         continue;
                     }
 
-                    if (parse[0] == "START"){
+                    if (ToUpperCase(parse[0]) == "START"){
                         if (StartCommandHandler(parse, itPlayers->second, server)) return;
                     }
-                    else if (parse[0] == "ALIVE") AliveCommandHandler(parse, itPlayers->second, server);
+                    else if (ToUpperCase(parse[0]) == "ALIVE") AliveCommandHandler(parse, itPlayers->second, server);
                     else server.SendError("11", pfd.fd);
 
                     break;
@@ -140,9 +148,9 @@ void Game::ClientsInputHandler(const TCPSocketServer& server){
                         continue;
                     }
 
-                    if (parse[0] == "DEADP") DeadCommandHandler(parse, itPlayers->second, server);
-                    else if (parse[0] == "SENDW") SendWordCommandHandler(parse, itPlayers->second, server);
-                    else if (parse[0] == "ALIVE") AliveCommandHandler(parse, itPlayers->second, server);
+                    if (ToUpperCase(parse[0]) == "DEADP") DeadCommandHandler(parse, itPlayers->second, server);
+                    else if (ToUpperCase(parse[0]) == "SENDW") SendWordCommandHandler(parse, itPlayers->second, server);
+                    else if (ToUpperCase(parse[0]) == "ALIVE") AliveCommandHandler(parse, itPlayers->second, server);
                     else server.SendError("11", pfd.fd);
                     break;
             }
@@ -178,7 +186,7 @@ void Game::ClientsInputHandler(const TCPSocketServer& server){
                 continue;
             }
 
-            if (parse[0] == "ALIVE") AliveCommandHandler(parse, itViewers->second, server);
+            if (ToUpperCase(parse[0]) == "ALIVE") AliveCommandHandler(parse, itViewers->second, server);
             else server.SendError("36", pfd.fd);
             break;
         }
@@ -384,7 +392,7 @@ void Game::SendWordCommandHandler(const std::vector<std::string>& cmd, Client& c
     else if (current->first != client.GetFd()) server.SendError("35", client.GetFd());
     else{
         std::string word = cmd[1];
-        if (CheckWord(word)) {
+        if (CheckWord(ToUpperCase(word))) {
             BroadcastMessage("SENDW " + word + " C\n", server);
             RoundEnd(server);
             if (!gameOver) RoundStart(server);
@@ -583,7 +591,7 @@ void Game::FillWorldList(){
     std::string text;
     while (std::getline(file, text)){
         text[text.find('\n')] = '\0';
-        words.push_back(text);
+        words.push_back(ToUpperCase(text));
     }
 }
 
@@ -600,5 +608,6 @@ std::string Game::GenerateLetterSequence(){
         }
     }
 }
+
 
 #endif
