@@ -409,7 +409,7 @@ void Game::RoundStart(const TCPSocketServer& server){
     
     // Setup Timer
     if (timer <= 0){
-        timer = 2;//rand() % (maxTimer + 1 - minTimer) + minTimer;
+        timer = rand() % (maxTimer + 1 - minTimer) + minTimer;
     }
     else if (timer <= 5) timer = minTimer;
 

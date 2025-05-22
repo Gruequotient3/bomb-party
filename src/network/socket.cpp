@@ -102,7 +102,7 @@ int TCPSocketServer::SendData(const char* data, unsigned int len, int fd) const{
 }
 
 void TCPSocketServer::SendError(const std::string& errorCode, int fd) const{
-    std::string data = "Error " + errorCode + "\n";
+    std::string data = "ERROR " + errorCode + "\n";
     SendData(data.c_str(), (unsigned int)data.size(), fd);
 }
 
