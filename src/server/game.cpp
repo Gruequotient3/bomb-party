@@ -119,7 +119,6 @@ void Game::ClientsInputHandler(const TCPSocketServer& server){
                         continue;
                     }
                     ParseMessage(buffer, BUF_SIZE, parse);
-                    std::cout << buffer;
                     if (parse.size() < 1) {
                         server.SendError("11", pfd.fd);
                         continue;
@@ -380,9 +379,6 @@ void Game::DeadCommandHandler(const std::vector<std::string>& cmd, Client& clien
             BroadcastMessage("GOVER " + winner->GetUsername() + "\n", server);
             gameOver = true;
             state = WAITING_GAME;
-            for (auto p : players){
-                p.second.Reset();
-            }
             return;
         }    
     }
@@ -392,8 +388,8 @@ void Game::SendWordCommandHandler(const std::vector<std::string>& cmd, Client& c
     if (cmd.size() != 2) server.SendError("10", client.GetFd());
     else if (current->first != client.GetFd()) server.SendError("35", client.GetFd());
     else{
-        std::string word = cmd[1];
-        if (CheckWord(ToUpperCase(word))) {
+        std::string word = ToUpperCase(cmd[1]);
+        if (CheckWord(word)) {
             BroadcastMessage("SENDW " + word + " C\n", server);
             RoundEnd(server);
             if (!gameOver) RoundStart(server);
@@ -420,7 +416,7 @@ void Game::RoundStart(const TCPSocketServer& server){
     
     // Setup Timer
     if (timer <= 0){
-        timer = 2;//rand() % (maxTimer + 1 - minTimer) + minTimer;
+        timer = rand() % (maxTimer + 1 - minTimer) + minTimer;
     }
     else if (timer <= 5) timer = minTimer;
 
@@ -436,9 +432,6 @@ void Game::RoundEnd(const TCPSocketServer& server){
         BroadcastMessage("GOVER " + client->GetUsername() + "\n", server);
         gameOver = true;
         state = WAITING_GAME;
-        for (auto p : players){
-            p.second.Reset();
-        }
         return;
     }
 
@@ -472,8 +465,8 @@ void Game::SendPlayersCommand(const TCPSocketServer& server){
 void Game::BroadcastMessage(const std::string& message, const TCPSocketServer& server){
     auto itPlayers = players.begin();
     for (; itPlayers != players.end(); ++itPlayers){
-        if (!(itPlayers->second.IsConnected())) continue;
-        server.SendData(message.c_str(), (unsigned int)message.size(), itPlayers->first);
+        if (itPlayers->second.IsConnected())
+            server.SendData(message.c_str(), (unsigned int)message.size(), itPlayers->first);
     }
 
     auto itViewers = viewers.begin();
@@ -483,7 +476,6 @@ void Game::BroadcastMessage(const std::string& message, const TCPSocketServer& s
 }
 
 void Game::Update(const TCPSocketServer& server){
-    
     ClientsInputHandler(server);
     timestampAlive = time(NULL);
     switch (state){
@@ -492,17 +484,13 @@ void Game::Update(const TCPSocketServer& server){
             if (gameOver == true){
                 gameOver = false;
                 current = players.end();
-                std::string data = "ALIVE\n";
-                for (auto p : players){
-                    p.second.Reset();
-                    server.SendData(data.c_str(), data.size(), p.first);
-                }
-                
             }
+
             // Alive Handler
             auto itPlayers = players.begin();
             for (; itPlayers != players.end(); ++itPlayers){
                 Client& client = itPlayers->second;
+
                 if (client.GetAliveTimer() > 0){
                     client.SetAliveTimer(client.GetAliveTimer() - (timestampAlive - oldTimestampAlive));
                     continue;
@@ -517,9 +505,9 @@ void Game::Update(const TCPSocketServer& server){
                     SendPlayersCommand(server);
                     continue; 
                 }
-                
+
                 std::string msg = "ALIVE\n";
-                server.SendData(msg.c_str(), (unsigned int)msg.size()+1, client.GetFd());
+                server.SendData(msg.c_str(), (unsigned int)msg.size(), client.GetFd());
                 client.SetAliveTimer(INIT_ALIVE_TIMER);
                 client.SetAnswerAlive(false);
             }
@@ -542,7 +530,7 @@ void Game::Update(const TCPSocketServer& server){
                 }
 
                 std::string msg = "ALIVE\n";
-                server.SendData(msg.c_str(), (unsigned int)msg.size()+1, client.GetFd());
+                server.SendData(msg.c_str(), (unsigned int)msg.size(), client.GetFd());
                 client.SetAliveTimer(INIT_ALIVE_TIMER);
                 client.SetAnswerAlive(false);
             }
@@ -609,6 +597,5 @@ std::string Game::GenerateLetterSequence(){
         }
     }
 }
-
 
 #endif
