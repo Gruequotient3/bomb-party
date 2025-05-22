@@ -6,9 +6,6 @@
 
 
 class TCPSocketServer{
-    private:
-        std::map<unsigned short, std::string> errors;
-
     public:
         int fdSocket;
         
@@ -29,9 +26,8 @@ class TCPSocketClient{
         TCPSocketClient(const char* ip, const char* port);
         ~TCPSocketClient();
 
-        int Connect(const std::string& addr, unsigned short port);
-        int GetData(char* buffer, unsigned int len);
-        int SendData(const char* data, unsigned int len);
+        int GetData(char* buffer, unsigned int len) const;
+        int SendData(const char* data, unsigned int len) const;
 };
 
 #endif

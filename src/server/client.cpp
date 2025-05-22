@@ -9,9 +9,17 @@ Client::Client(int fd, const std::string& username) : fd{fd} {
     hasSpeak = true;
 
     alive = true;
-    aliveTimer = 3;
+    aliveTimer = 0;
     
     this->username = username;
+}
+
+void Client::Reset(){
+    answerAlive = true;
+    hasSpeak = true;
+
+    alive = true;
+    aliveTimer = 0;
 }
 
 int Client::GetFd() const{ 

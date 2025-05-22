@@ -19,6 +19,8 @@ class Client{
     public:
         Client(int fd, const std::string& username);
 
+        void Reset();
+
         int GetFd() const;
         bool IsConnected() const;
         bool HasAnswerAlive() const;

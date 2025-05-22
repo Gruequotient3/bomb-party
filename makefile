@@ -11,7 +11,7 @@ SOURCESSERVER = $(wildcard src/server/*.cpp)
 SOURCESCLIENT = $(wildcard src/client/*.cpp)
 
 OBJSERVER = $(SOURCESSERVER:.cpp=.o) $(SOURCES:.cpp=.o)
-OBJCLIENT = $(SOURCESCLIENT:.cpp=.o) $(SORUCES:.cpp=.o)
+OBJCLIENT = $(SOURCESCLIENT:.cpp=.o) $(SOURCES:.cpp=.o)
 
 RM = rm -rf
 
@@ -24,7 +24,7 @@ $(PROGSERVER): $(OBJSERVER)
 	$(CC) -fsanitize=address $(OBJSERVER) $(LDFLAGS) -o $(PROGSERVER)
 
 $(PROGCLIENT): $(OBJCLIENT)
-	$(CC) $(OBJCLIENT) $(LDFLAGS) -o $(PROGCLIENT)
+	$(CC) -fsanitize=address $(OBJCLIENT) $(LDFLAGS) -o $(PROGCLIENT)
 
 %.o: %.cpp
 	$(CC) $(CXXFLAGS) -c $< -o $@

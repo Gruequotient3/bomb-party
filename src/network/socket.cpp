@@ -112,4 +112,66 @@ void TCPSocketServer::SendError(const std::string& errorCode, int fd) const{
 |******************************|
 */
 
+TCPSocketClient::TCPSocketClient(const char* ip, const char* port){
+    struct addrinfo hints, *gai, *ai;
+    int err;
+
+    bzero(&hints, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_PASSIVE;
+    if ((err = getaddrinfo(ip, port, &hints, &gai))){
+        perror("getaddrinfo");
+        exit(EXIT_FAILURE);
+    }
+    for (ai = gai; ai != NULL; ai = ai->ai_next){
+        if ((fdSocket = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol)) < 0){
+            perror("socket");
+            continue;
+        }
+        if (connect(fdSocket, ai->ai_addr, ai->ai_addrlen) < 0){
+            close(fdSocket);
+            perror("connect");
+            continue;
+        }
+        break;
+    }   
+
+    if (!ai){
+        std::cout << "Can't connect to server " << ip << ":" << "port" << std::endl;
+        exit(EXIT_FAILURE); 
+    }
+    freeaddrinfo(gai);
+}
+
+TCPSocketClient::~TCPSocketClient(){
+    if (close(fdSocket)){
+        perror("close");
+        exit(EXIT_FAILURE);
+    }
+}
+
+int TCPSocketClient::GetData(char* buffer, unsigned int len) const{
+    int length;
+    
+    memset(buffer, 0, len);
+    if ((length = recv(fdSocket, buffer, len, 0)) < 0){
+        perror("recv");
+        return -1;
+    }
+    return length;
+}
+
+
+int TCPSocketClient::SendData(const char* data, unsigned int len) const{
+    int length;
+
+    if ((length = send(fdSocket, data, len, 0)) < 0){
+        perror("send");
+        return -1;
+    } 
+    return length;
+}
+
+
 #endif
