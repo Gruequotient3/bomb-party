@@ -381,7 +381,6 @@ void Game::SendWordCommandHandler(const std::vector<std::string>& cmd, Client& c
     else if (current->first != client.GetFd()) server.SendError("35", client.GetFd());
     else{
         std::string word = cmd[1];
-        std::cout << word << std::endl;
         if (CheckWord(word)) {
             BroadcastMessage("SENDW " + word + " C\n", server);
             RoundEnd(server);
@@ -546,7 +545,6 @@ void Game::Update(const TCPSocketServer& server){
                 if (!client.HasAnswerAlive()){
                     client.SetAlive(false);
                     client.SetConnected(false);
-                    std::cout << "salut" << std::endl;
                     BroadcastMessage("DEADP " + client.GetUsername() + "\n", server);
                     continue; 
                 }
