@@ -43,9 +43,11 @@ int Game::InputHandler(const TCPSocketClient& socket){
 
     pfds[0].fd = socket.fdSocket;
     pfds[0].events = POLLIN;
+    pfds[0].revents = 0;
 
     pfds[1].fd = STDIN_FILENO;
     pfds[1].events = POLLIN;
+    pfds[1].revents = 0;
 
     if ((status = poll(pfds, 2, 0)) < 0){
         perror("poll");

@@ -119,6 +119,7 @@ void Game::ClientsInputHandler(const TCPSocketServer& server){
                         continue;
                     }
                     ParseMessage(buffer, BUF_SIZE, parse);
+                    std::cout << buffer;
                     if (parse.size() < 1) {
                         server.SendError("11", pfd.fd);
                         continue;
@@ -419,7 +420,7 @@ void Game::RoundStart(const TCPSocketServer& server){
     
     // Setup Timer
     if (timer <= 0){
-        timer = rand() % (maxTimer + 1 - minTimer) + minTimer;
+        timer = 2;//rand() % (maxTimer + 1 - minTimer) + minTimer;
     }
     else if (timer <= 5) timer = minTimer;
 
