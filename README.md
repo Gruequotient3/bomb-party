@@ -29,7 +29,7 @@ make client
 ./server
 ``` 
 
-### Client
+### Client
 ```
 ./client
 ```
